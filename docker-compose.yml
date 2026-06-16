@@ -18,7 +18,6 @@ services:
       DOCKER_BUILDKIT: "1"
     ports:
       - "8000:8000/tcp"
-      - "58000:58080/tcp"
       - "8443:8443/tcp"
       - "10000:10000/udp"
     volumes:

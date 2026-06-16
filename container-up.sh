@@ -27,7 +27,10 @@ kill_jobs() {
 trap kill_jobs EXIT
 
 echo "📹 Launching Jitsi compose in background..."
-"${JITSI_DIR}/docker-compose-up.sh" &
+
+docker_compose=${LOCAL_DOCKER_COMPOSE:-docker compose -f ${JITSI_DIR}/docker-compose.yml}
+
+${docker_compose} up jitsi 2>&1 &
 compose_pid=$!
 
 {
