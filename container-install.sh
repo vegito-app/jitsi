@@ -70,13 +70,9 @@ fi
 
 mkdir -p "${HOME}/.bashrc.d"
 cat <<EOF > "${HOME}/.bashrc.d/.bashrc"
-export HISTSIZE=50000
-export HISTFILESIZE=100000
 export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
 export DOCKER_CONFIG=${local_container_cache}/.docker
-export DOCKER_BUILDKIT=1
 export LOCAL_JITSI_DIR=${jitsi_dir}
-export CONTAINER_CACHE=${local_container_cache}
 export JITSI_DOMAIN=${jitsi_domain}
 EOF
 
@@ -96,6 +92,13 @@ fi
 
 cd "${jitsi_dir}"
 
+jitsi_commit="${JITSI_COMMIT:-}"
+
+if [ -n "${jitsi_commit}" ]; then
+  echo "📌 Checkout Jitsi commit ${jitsi_commit}"
+  git fetch --all --tags
+  git checkout "${jitsi_commit}"
+fi
 if [ ! -f .env ]; then
   cp env.example .env
 fi
@@ -116,6 +119,15 @@ set_env_value HTTP_PORT "${HTTP_PORT:-8000}"
 set_env_value HTTPS_PORT "${HTTPS_PORT:-8443}"
 set_env_value PUBLIC_URL "${PUBLIC_URL:-https://${jitsi_domain}:${HTTPS_PORT:-8443}}"
 set_env_value TZ "${TZ:-Europe/Paris}"
+set_env_value XMPP_DOMAIN "meet.jitsi"
+set_env_value XMPP_AUTH_DOMAIN "auth.meet.jitsi"
+set_env_value XMPP_MUC_DOMAIN "muc.meet.jitsi"
+set_env_value XMPP_INTERNAL_MUC_DOMAIN "internal-muc.meet.jitsi"
+set_env_value XMPP_SERVER "prosody"
+set_env_value XMPP_BOSH_URL_BASE "http://prosody:5280"
+set_env_value JICOFO_AUTH_USER "focus"
+set_env_value JVB_AUTH_USER "jvb"
+set_env_value ENABLE_XMPP_WEBSOCKET "1"
 
 mkdir -p \
   "${jitsi_config_dir}/web" \

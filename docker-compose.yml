@@ -12,6 +12,7 @@ services:
       CONTAINER_CACHE: /home/debian/.cache/jitsi
       HTTP_PORT: "8000"
       HTTPS_PORT: "8443"
+      JITSI_COMMIT: ${JITSI_COMMIT:-stable-11031}
       PUBLIC_URL: "https://meet.vegito.app:8443"
       DOCKER_HOST: unix:///run/user/1000/docker.sock
       DOCKER_BUILDKIT: "1"
@@ -30,8 +31,6 @@ services:
       - "meet.vegito.app:10.5.5.7"
     # dns:
     #   - ${VEGITO_DNS_SERVER:-10.5.5.7}
-    entrypoint: bash
-    command: -c 'sleep infinity'
 
 volumes:
   jitsi-cache:
