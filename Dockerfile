@@ -31,9 +31,9 @@ RUN usermod -l ${non_root_user} ${USER} \
     echo "${non_root_user} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${non_root_user} && \
     chmod 0440 /etc/sudoers.d/${non_root_user}
 
-
 # Use Bash
 RUN ln -sf /usr/bin/bash /bin/sh
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     ca-certificates \

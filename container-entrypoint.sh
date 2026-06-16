@@ -10,5 +10,4 @@ if [ "${LOCAL_JITSI_CONTAINER_INSTALL:-true}" = "true" ]; then
     jitsi-container-install.sh
 fi
 
-
 exec "$@"
