@@ -76,7 +76,7 @@ else
 fi
 
 mkdir -p "${HOME}/.bashrc.d"
-cat <<EOF > "${HOME}/.bashrc.d/.bashrc"
+cat <<EOF > "${HOME}/.bashrc.d/200-jitsi.sh"
 export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
 export DOCKER_CONFIG=${local_container_cache}/.docker
 export LOCAL_JITSI_DIR=${jitsi_dir}
