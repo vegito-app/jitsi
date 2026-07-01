@@ -19,7 +19,7 @@ trap kill_jobs EXIT
 
 echo "📹 Starting Jitsi server..."
 
-debian-dind-rootless-start.sh &
+debian-dind-start.sh &
 bg_pids+=("$!")
 
 echo "🐳 Waiting for rootless Docker..."
@@ -41,29 +41,10 @@ docker compose down --remove-orphans || true
 echo "🚀 Starting inner docker-jitsi-meet stack..."
 docker compose up -d
 
-echo "🔐 Synchronizing Prosody service account passwords..."
-prosody_container="$(docker compose ps -q prosody)"
-
-sync_prosody_password() {
-  local user="$1"
-  local password="$2"
-
-  [ -n "${password}" ] || return 0
-
-  docker exec "${prosody_container}" \
-    prosodyctl --config /config/prosody.cfg.lua \
-    passwd "${user}@${XMPP_AUTH_DOMAIN:-auth.meet.jitsi}" <<EOF
-${password}
-${password}
-EOF
-}
-
-if [ -n "${prosody_container}" ]; then
-  sync_prosody_password "${JICOFO_AUTH_USER:-focus}" "${JICOFO_AUTH_PASSWORD}"
-  sync_prosody_password "${JVB_AUTH_USER:-jvb}" "${JVB_AUTH_PASSWORD}"
-  sync_prosody_password "jigasi" "${JIGASI_XMPP_PASSWORD:-}"
-  sync_prosody_password "jibri" "${JIBRI_XMPP_PASSWORD:-}"
-fi
+# The inner docker-jitsi-meet stack manages Prosody credentials itself.
+# Service passwords are generated once by ./gen-passwords.sh during
+# container-install.sh and persisted inside the mounted CONFIG directory.
+# Rewriting them here would desynchronize the persisted accounts.
 
 echo "🌐 Waiting for Jitsi web endpoint..."
 until curl -kfsS "https://127.0.0.1:${HTTPS_PORT:-8443}" >/dev/null 2>&1; do

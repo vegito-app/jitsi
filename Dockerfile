@@ -1,4 +1,4 @@
-FROM dbndev/vegito-public:trixie-debian-docker-latest
+FROM dbndev/vegito-public:trixie-debian-dockerd-latest
 
 USER root
 

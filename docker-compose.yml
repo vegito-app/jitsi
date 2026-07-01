@@ -9,7 +9,7 @@ services:
     environment:
       LOCAL_JITSI_CONTAINER_INSTALL: "true"
       LOCAL_JITSI_DIR: /home/debian/docker-jitsi-meet
-      CONTAINER_CACHE: /home/debian/.cache/jitsi
+      CONTAINER_CACHE: ${CONTAINER_CACHE:-${PWD}/.containers/jitsi}
       HTTP_PORT: "8000"
       HTTPS_PORT: "8443"
       JITSI_COMMIT: ${JITSI_COMMIT:-stable-11031}
@@ -21,9 +21,9 @@ services:
       - "8000:8000/tcp"
       - "8443:8443/tcp"
       - "10000:10000/udp"
-
+    working_dir: ${PWD}
     volumes:
-      - jitsi-cache:/home/debian/.cache/jitsi
+      - ${PWD}:${PWD}
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - vscode-store:/vscode
     networks:

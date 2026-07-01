@@ -13,13 +13,15 @@ check_success() {
 }
 trap check_success EXIT
 
-local_container_cache=${CONTAINER_CACHE:-${HOME}/.cache/jitsi}
+local_container_cache=${CONTAINER_CACHE:-${HOME}/.container/jitsi}
 jitsi_dir=${LOCAL_JITSI_DIR:-${HOME}/docker-jitsi-meet}
+
+mkdir -p "${local_container_cache}"
 jitsi_config_dir=${JITSI_CONFIG_DIR:-${HOME}/.jitsi-meet-cfg}
 jitsi_domain=${JITSI_DOMAIN:-meet.vegito.app}
 
 mkdir -p "${local_container_cache}"
-mkdir -p "${local_container_cache}/docker-jitsi-meet"
+mkdir -p "${local_container_cache}/jitsi"
 mkdir -p "${local_container_cache}/.docker"
 echo "📦 Jitsi cache directory: ${local_container_cache}"
 echo "📁 Jitsi config directory: ${jitsi_config_dir}"
@@ -41,7 +43,7 @@ mkdir -p "${local_container_cache}/.jitsi-meet-cfg"
 
 rm -rf "${jitsi_dir}"
 ln -sfn \
-  "${local_container_cache}/docker-jitsi-meet" \
+  "${local_container_cache}/jitsi" \
   "${jitsi_dir}"
 
 rm -rf "${HOME}/.jitsi-meet-cfg"
@@ -78,23 +80,16 @@ fi
 mkdir -p "${HOME}/.bashrc.d"
 cat <<EOF > "${HOME}/.bashrc.d/200-jitsi.sh"
 export DOCKER_HOST=unix:///run/user/${LOCAL_USER_ID:-1000}/docker.sock
-export DOCKER_CONFIG=${local_container_cache}/.docker
+export CONTAINER_CACHE=${local_container_cache}
+export DOCKER_CONFIG=\${CONTAINER_CACHE}/.docker
 export LOCAL_JITSI_DIR=${jitsi_dir}
 export JITSI_DOMAIN=${jitsi_domain}
 EOF
 
-git_config_global=${HOME}/.gitconfig
-if [ -f "${git_config_global}" ]; then
-  mkdir -p "${local_container_cache}/git"
-  rsync -a "${git_config_global}" "${local_container_cache}/git/"
-  rm -f "${git_config_global}"
-  ln -sfn "${local_container_cache}/git/.gitconfig" "${git_config_global}"
-fi
-
-if [ ! -d "${jitsi_dir}/.git" ]; then
-  rm -rf "${jitsi_dir}"
+if [ ! -d "${local_container_cache}/jitsi/.git" ]; then
+  rm -rf "${local_container_cache}/jitsi"
   echo "⬇️ Cloning docker-jitsi-meet..."
-  git clone https://github.com/jitsi/docker-jitsi-meet.git "${jitsi_dir}"
+  git clone https://github.com/jitsi/docker-jitsi-meet.git "${local_container_cache}/jitsi"
 fi
 
 cd "${jitsi_dir}"
@@ -151,6 +146,8 @@ mkdir -p \
 if ! grep -q '^JICOFO_AUTH_PASSWORD=.' .env 2>/dev/null; then
   echo "🔑 Generating Jitsi secrets..."
   ./gen-passwords.sh
+else
+  echo "🔐 Reusing existing Jitsi secrets from .env"
 fi
 
 if git diff --quiet; then
